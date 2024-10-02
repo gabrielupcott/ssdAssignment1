@@ -24,6 +24,17 @@ builder.Services.AddLogging();
 
 var app = builder.Build();
 
+// Access hosting environment to determine if in development
+var hosting = builder.Environment;
+var configuration = builder.Configuration;
+
+// If in development, load secrets from User Secrets
+if (hosting.IsDevelopment())
+{
+    var secrets = configuration.GetSection("Secrets").Get<AppSecrets>();
+    SeedData.appSecrets = secrets;
+}
+
 // Seed the database
 using (var scope = app.Services.CreateScope())
 {

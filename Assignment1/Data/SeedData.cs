@@ -12,6 +12,9 @@ namespace Assignment1.Data
 {
     public static class SeedData
     {
+        // AppSecrets property to store secrets injected from the configuration
+        public static AppSecrets appSecrets { get; set; }
+
         public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
             using (var context = serviceProvider.GetRequiredService<ApplicationDbContext>())
@@ -49,8 +52,10 @@ namespace Assignment1.Data
                     }
                 }
 
-                // Create a Manager user
-                var managerEmail = "manager@example.com";
+                // Create a Manager user using secrets
+                var managerEmail = appSecrets.Manager.Email;
+                var managerPassword = appSecrets.Manager.Password;
+
                 var managerUser = await userManager.FindByEmailAsync(managerEmail);
                 if (managerUser == null)
                 {
@@ -64,7 +69,7 @@ namespace Assignment1.Data
                         BirthDate = new DateTime(1980, 1, 1),
                         EmailConfirmed = true // Ensure email is confirmed
                     };
-                    var result = await userManager.CreateAsync(managerUser, "Password123!");
+                    var result = await userManager.CreateAsync(managerUser, managerPassword);
                     if (result.Succeeded)
                     {
                         await userManager.AddToRoleAsync(managerUser, "Manager");
@@ -80,8 +85,10 @@ namespace Assignment1.Data
                     logger.LogInformation($"Manager user '{managerEmail}' already exists.");
                 }
 
-                // Create an Employee user
-                var employeeEmail = "employee@example.com";
+                // Create an Employee user using secrets
+                var employeeEmail = appSecrets.Employee.Email;
+                var employeePassword = appSecrets.Employee.Password;
+
                 var employeeUser = await userManager.FindByEmailAsync(employeeEmail);
                 if (employeeUser == null)
                 {
@@ -95,7 +102,7 @@ namespace Assignment1.Data
                         BirthDate = new DateTime(1990, 1, 1),
                         EmailConfirmed = true // Ensure email is confirmed
                     };
-                    var result = await userManager.CreateAsync(employeeUser, "Password123!");
+                    var result = await userManager.CreateAsync(employeeUser, employeePassword);
                     if (result.Succeeded)
                     {
                         await userManager.AddToRoleAsync(employeeUser, "Employee");
@@ -126,8 +133,7 @@ namespace Assignment1.Data
                         {
                             Name = "HealthPlus",
                             PhoneNumber = "987-654-3210",
-                            Website = "https://www.healthplus.com",
-                            // IncorporatedDate is optional
+                            Website = "https://www.healthplus.com"
                         }
                     );
                     await context.SaveChangesAsync();
